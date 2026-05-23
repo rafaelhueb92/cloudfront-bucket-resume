@@ -39,10 +39,15 @@ jobs:
           echo "Ref name: $GITHUB_REF_NAME"
           echo "Event: $GITHUB_EVENT_NAME"
 
+      - name: Set Environment Variables
+        run: |
+          ARN="arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole-${{ github.repository }}"
+          echo "TF_VAR_ROLE_ARN=$ARN" >> $GITHUB_ENV
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ env.TF_VAR_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Verify caller identity
