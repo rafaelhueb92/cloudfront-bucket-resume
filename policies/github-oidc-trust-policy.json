@@ -12,9 +12,4 @@
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                    "token.actions.githubusercontent.com:sub": "repo:rafaelhueb92/cloudfront-bucket-resume:ref:refs/heads/main"
-                }
-            }
-        }
-    ]
-}
+                    "token.actions.githubusercontent.com:sub": "repo
