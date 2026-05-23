@@ -41,7 +41,6 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          role-session-name: github-actions-terraform
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Verify caller identity
