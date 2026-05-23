@@ -43,7 +43,7 @@ jobs:
         run: |
           REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
           ARN="arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/GitHubActionsRole-$REPO_NAME"
-          echo "role_arn=$ARN" >> $GITHUB_OUTPUT
+          echo "ROLE_ARN=$ARN" >> $GITHUB_OUTPUT
 
       - name: Print OIDC aud and sub
         run: |
@@ -54,7 +54,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ steps.set-role.outputs.role_arn }}
+          role-to-assume: ${{ vars.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
           audience: sts.amazonaws.com
 
