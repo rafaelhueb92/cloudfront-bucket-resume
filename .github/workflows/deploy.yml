@@ -42,7 +42,7 @@ jobs:
       - name: Set Environment Variables
         run: |
           REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-          ARN="arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole-${REPO_NAME}"
+          ARN="arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole-$REPO_NAME"
           echo "TF_VAR_ROLE_ARN=$ARN" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
