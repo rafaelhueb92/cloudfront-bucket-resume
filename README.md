@@ -88,6 +88,51 @@ resume_object_key  = "resume.pdf"
 resume_file_path   = "./resume.pdf"
 ```
 
+## GitHub Actions deployment (OIDC assume role)
+
+This repository includes `.github/workflows/deploy.yml` to run Terraform in GitHub Actions using AWS OIDC.
+
+### 1) Create AWS OIDC federated provider for GitHub
+
+You must create this once per AWS account:
+
+- Provider URL: `https://token.actions.githubusercontent.com`
+- Audience: `sts.amazonaws.com`
+
+### 2) Create IAM role for GitHub Actions
+
+Use the trust policy in `policies/github-oidc-trust-policy.json` and replace `<AWS_ACCOUNT_ID>`.
+
+`token.actions.githubusercontent.com:sub` is set to:
+
+- `repo:rafaelhueb92/cloudfront-bucket-resume:ref:refs/heads/main`
+
+This means only workflows running from branch `main` can assume the role.
+
+Attach `policies/terraform-deploy-permissions-policy.json` to that role.
+
+### 3) Configure GitHub repository settings
+
+- Secret: `AWS_ROLE_TO_ASSUME` = IAM role ARN
+- Variable: `TF_STATE_BUCKET` = existing S3 bucket for Terraform remote state
+
+The workflow runs:
+
+- `terraform init` with backend S3 config from `TF_STATE_BUCKET`
+- `terraform validate`
+- `terraform plan`
+- `terraform apply`
+
+### 4) Terraform remote state
+
+Remote state is configured in `main.tf` using `backend "s3" {}` and is initialized in CI with:
+
+- bucket: `${{ vars.TF_STATE_BUCKET }}`
+- key: `resume-cloudfront/terraform.tfstate`
+- region: `${{ env.AWS_REGION }}`
+
+The state bucket must already exist before CI runs.
+
 ## Update resume file
 
 Replace your local PDF and run:
