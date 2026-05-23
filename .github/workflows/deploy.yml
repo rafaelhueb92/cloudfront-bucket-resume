@@ -4,14 +4,8 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-
 permissions:
   contents: read
-
-concurrency:
-  group: terraform-deploy-${{ github.ref }}
-  cancel-in-progress: false
 
 env:
   TF_IN_AUTOMATION: true
