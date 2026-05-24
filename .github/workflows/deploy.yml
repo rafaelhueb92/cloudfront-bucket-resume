@@ -26,18 +26,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Print GitHub context
-        run: |
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Ref: $GITHUB_REF"
-          echo "Ref name: $GITHUB_REF_NAME"
-          echo "Event: $GITHUB_EVENT_NAME"
-
       - name: Set Environment Variables
         id: set-role
         run: |
@@ -45,6 +33,24 @@ jobs:
           ARN="arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/GitHubActionsRole-$REPO_NAME"
           echo "ROLE_ARN=$ARN" >> $GITHUB_ENV
 
-      - name: Print OIDC aud and sub
-        run: |
-          OIDC_TOKEN=$(curl -sS -H "Authorization: Bearer $A
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Verify caller identity
+        run: aws sts get-caller-identity
+
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" -backend-config="key=resume-cloudfront/terraform.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
