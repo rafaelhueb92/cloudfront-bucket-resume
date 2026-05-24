@@ -2,6 +2,9 @@ name: terraform-deploy
 
 on:
   push:
+    paths:
+      - '!**.md'
+      - '!permission-policy.json'
     branches:
       - main
 permissions:
