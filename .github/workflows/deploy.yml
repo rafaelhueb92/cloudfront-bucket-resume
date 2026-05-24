@@ -47,28 +47,4 @@ jobs:
 
       - name: Print OIDC aud and sub
         run: |
-          OIDC_TOKEN=$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r '.value')
-          export OIDC_TOKEN
-          python3 env_test.py
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ env.ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-          audience: sts.amazonaws.com
-
-      - name: Verify caller identity
-        run: aws sts get-caller-identity
-
-      - name: Terraform Init
-        run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" -backend-config="key=resume-cloudfront/terraform.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+          OIDC_TOKEN=$(curl -sS -H "Authorization: Bearer $A

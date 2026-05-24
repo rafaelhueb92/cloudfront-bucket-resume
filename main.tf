@@ -1,24 +1,3 @@
-terraform {
-  required_version = ">= 1.5.0"
-
-  backend "s3" {}
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.6"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.aws_region
-}
-
 resource "random_id" "suffix" {
   byte_length = 4
 }
@@ -96,28 +75,7 @@ resource "aws_cloudfront_distribution" "resume" {
     cloudfront_default_certificate = true
   }
 }
-
-data "aws_iam_policy_document" "resume_bucket_policy" {
-  statement {
-    sid    = "AllowCloudFrontServicePrincipal"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-
-    actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.resume.arn}/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.resume.arn]
-    }
-  }
-}
-
 resource "aws_s3_bucket_policy" "resume" {
   bucket = aws_s3_bucket.resume.id
-  policy = data.aws_iam_policy_document.resume_bu
+  policy = data.aws_iam_policy_document.resume_bucket_policy.json
+}
